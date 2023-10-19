@@ -21,6 +21,18 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 
 ## Customize configuration
 
+The default config for Chat UI is stored in the `.env` file. You will need to override some values to get Chat UI to run locally. This is done in `.env.local`.
+
+Start by creating a `.env.local` file in the root of the repository. The bare minimum config you need to get Chat UI to run locally is the following:
+
+```env
+VITE_APP_URL = <https://api.openai.com/v1/chat/completions> 
+
+VITE_API_KEY= <your api key of openai>
+
+VITE_API_UPLOAD = <url of upload service>
+```
+
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
