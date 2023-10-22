@@ -10,10 +10,12 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
+    "gpt-tokenizer": "^2.1.2",
     "openai": "^4.12.1",
-    "pinia": "^2.1.6",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.4"
+    "vue-router": "^4.2.4",
+    "vue3-pdf-app": "^1.0.3"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",

@@ -18,10 +18,10 @@ export default defineConfig({
     port: 1003,
     open: false,
     proxy: {
-      '/api': {
-        target: 'http://localhost:3002',
+      '/file': {
+        target: 'http://localhost:8080',
         changeOrigin: true, // 允许跨域
-        rewrite: path => path.replace('/api/', '/'),
+        rewrite: path => path.replace('/file/', '/'),
       },
     },
   }

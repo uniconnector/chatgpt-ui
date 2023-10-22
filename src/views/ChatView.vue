@@ -1,10 +1,44 @@
 <script setup lang='ts'>
   import { ref } from 'vue'
   import { useRoute } from 'vue-router'
-  import { useScroll } from './hooks/useScroll'
   import { router } from '@/router'
+  import { useScroll } from './hooks/useScroll'
+  import VuePdfApp from "vue3-pdf-app"
+  import "vue3-pdf-app/dist/icons/main.css"
+  import { encode } from 'gpt-tokenizer'
+
 
   const { scrollRef, scrollToBottom } = useScroll()
+
+  // 会话和PDF预览面板切换控制
+  let showTab = ref<string>("nav-tab-chat")
+  let tabWidth = ref<string>("")
+
+  // vue3-pdf-app 界面配置
+  let pdfFile = ref<string>("")
+  const config = ref<{}>({
+    sidebar: true,
+    toolbar: {
+      toolbarViewerLeft: {
+        findbar: true,
+        previous: true,
+        next: true,
+        pageNumber: false,
+      },
+      toolbarViewerRight: {
+        presentationMode: true,
+        openFile: false,
+        print: false,
+        download: false,
+        viewBookmark: false,
+      },
+      toolbarViewerMiddle: {
+        zoomOut: true,
+        zoomIn: true,
+        scaleSelectContainer: true,
+      }
+    },
+  })
 
   // 消息输入框
   const prompt = ref<string>('')
@@ -16,13 +50,11 @@
   const route = useRoute()
   let { uuid } = route.params as { uuid: string }
 
-
   // 会话列表和消息列表
   var conversationList = ref([])
   var messageList = ref([])
 
   let conversations = window.localStorage.getItem("chatStore")
-
   if(conversations){
     conversationList.value = JSON.parse(conversations)
   }
@@ -97,6 +129,16 @@
     window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
   }
 
+  // 菜单切换
+  function handleMenu(){
+    let rootbody = document.getElementById("rootbody")
+    if(rootbody.classList.value==""){
+      rootbody.classList.value="open-sidebar-menu"
+    }else{
+      rootbody.classList.value=""
+    }
+  }
+
   // 切换会话
   function handleSwitch(selectedUuid: string) {
     uuid = selectedUuid
@@ -130,14 +172,23 @@
 
   // 处理上传文档
   function handleUpload(e){
-    // console.log(e.target.files)
+    if(e.target.files[0].size >= 5 * 1024 * 1024){
+      alert('上传文件最大文件5M限制')
+      return
+    }
 
     // 设置上传文件样式
     fileName.value = e.target.files[0].name
     fileSize.value = e.target.files[0].size
     formatFileSize()
 
-    // 上传文件交解析出内容
+    // 预览pdf
+    showTab.value = 'nav-tab-doc'
+    tabWidth.value = 'width: 60%'
+
+    pdfFile.value = URL.createObjectURL(e.target.files[0])
+
+    // 上传文件解析出内容
     const formData = new FormData()
     formData.append('doc', e.target.files[0])
 
@@ -147,11 +198,31 @@
     })
     .then(response => response.text())
     .catch(error => console.error('Error:', error))
-    .then(function (response) {
-      fileContent.value = response
-      // 显示上传卡片
-      fielUploadCard.value = true
+    .then(function (docContent) {
+      const tokens = encode(docContent)
+
+      if(tokens.length > 4096){
+        alert("超出最大Tokens数量限制4096")
+        fileName.value = ''
+        fileSize.value = ''
+      }else{
+        // 设置读取出的内容
+        fileContent.value = docContent
+
+        // 显示上传卡片
+        fielUploadCard.value = true
+      }
     })
+  }
+
+  function handleBackChat(){
+    showTab.value = 'nav-tab-chat'
+    tabWidth.value = ''
+  }
+
+  function handleBackDoc(){
+    showTab.value = 'nav-tab-doc'
+    tabWidth.value = 'width: 40%'
   }
 
   // 格式化文件大小 单位：Bytes、KB、MB、GB
@@ -159,17 +230,14 @@
     if (fileSize.value < 1024) {
         fileSize.value = fileSize.value + 'B';
     } else if (fileSize.value < (1024*1024)) {
-        var temp = fileSize.value / 1024;
-        temp = temp.toFixed(2);
-        fileSize.value = temp + 'KB';
+        var temp = fileSize.value / 1024
+        fileSize.value = temp.toFixed(2) + 'KB'
     } else if (fileSize.value < (1024*1024*1024)) {
-        var temp = fileSize / (1024*1024);
-        temp = temp.toFixed(2);
-        fileSize.value = temp + 'MB';
+        var temp = fileSize.value / (1024*1024)
+        fileSize.value = temp.toFixed(2) + 'MB'
     } else {
         var temp = fileSize.value / (1024*1024*1024);
-        temp = temp.toFixed(2);
-        fileSize.value = temp + 'GB';
+        fileSize.value = temp.toFixed(2) + 'GB'
     }
   }
 
@@ -284,6 +352,28 @@
       console.log(e)
     }
   }
+
+  function handleDele(selectedUuid: string){
+    // 重置会话列表的激活状态
+    conversationList.value.forEach((item, index) => {
+      if(item.uuid == selectedUuid){
+        conversationList.value.splice(index,1)
+
+        // 保存会话到本地存储
+        window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
+        return false
+      }
+    })
+
+    // 重置新会话的消息记录
+    if(uuid == selectedUuid){
+      let messages = window.localStorage.getItem(selectedUuid)
+      if(messages){
+        window.localStorage.removeItem(selectedUuid)
+        messageList.value = []
+      }
+    }
+  }
 </script>
 
 <template>
@@ -294,11 +384,10 @@
           <svg class="logo" viewBox="0 0 128 128" width="24" height="24" data-v-c0161dce=""><path fill="#42b883" d="M78.8,10L64,35.4L49.2,10H0l64,110l64-110C128,10,78.8,10,78.8,10z" data-v-c0161dce=""></path><path fill="#35495e" d="M78.8,10L64,35.4L49.2,10H25.6L64,76l38.4-66H78.8z" data-v-c0161dce=""></path></svg>
         </a>
         <div class="nav flex-md-column nav-pills flex-grow-1" role="tablist" aria-orientation="vertical">
-          
-          <a class="mb-xl-3 mb-md-2 nav-link active " data-toggle="pill" href="#" role="tab">
+          <a class="mb-xl-3 mb-md-2 nav-link active"  data-toggle="pill" href="#" role="tab">
             <i class="zmdi zmdi-comment-alt"></i>
           </a>
-          <a class="mb-xl-3 mb-md-2 nav-link d-none d-sm-block flex-grow-1" data-toggle="pill" href="#" role="tab">
+          <a class="mb-xl-3 mb-md-2 nav-link  d-none d-sm-block flex-grow-1" data-toggle="pill" href="#" role="tab">
             <i class="zmdi zmdi-layers"></i>
           </a>
 
@@ -309,14 +398,15 @@
             <i class="zmdi zmdi-settings"></i>
           </a>
         </div>
-        <button type="submit" class="btn sidebar-toggle-btn shadow-sm">
+        <button type="submit" class="btn sidebar-toggle-btn shadow-sm" @click="handleMenu">
           <i class="zmdi zmdi-menu"></i>
         </button>
       </div>
       <!-- 侧边列表栏 -->
-      <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3">
+      <div class="sidebar border-end py-xl-4 py-3 px-xl-4 px-3" :style="tabWidth">
         <div class="tab-content">
-          <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel">
+          <!-- 会话记录 -->
+          <div class="tab-pane fade active show" id="nav-tab-chat" role="tabpanel" v-if="showTab === 'nav-tab-chat'">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h3 class="mb-0 text-primary">ChatGPT-UI</h3>
               <div>
@@ -326,8 +416,11 @@
               <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
                 <span>RECENT CHATS</span>
               </li>
-              <!-- 会话记录 -->
               <li v-for="(item, index) in conversationList" :class="[item.active ? 'active' : '']" @click="handleSwitch(item.uuid)">
+                <div class="hover_action">
+                  <button type="button" class="btn btn-link text-info"><i class="zmdi zmdi-eye"></i></button>
+                  <button type="button" class="btn btn-link text-danger" @click="handleDele(item.uuid)"><i class="zmdi zmdi-delete"></i></button>
+                </div>
                 <a href="#" class="card">
                   <div class="card-body">
                     <div class="media">
@@ -343,11 +436,29 @@
                   </div>
                 </a>
               </li>
-               <!-- end 会话记录 -->
             </ul>
           </div>
+          <!-- end 会话记录 -->
+          <!-- PDF预览 -->
+          <div class="tab-pane fade active show" id="nav-tab-doc" role="tabpanel" v-if="showTab === 'nav-tab-doc'">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="mb-0 text-primary">ChatGPT-PDF</h3>
+              <div>
+                <button class="btn btn-dark" type="button"  @click="handleBackChat">Back Chat</button></div>
+            </div>
+            <ul class="chat-list">
+              <li class="header d-flex justify-content-between ps-3 pe-3 mb-1">
+                <span>PREVIEW</span>
+              </li>
+              <li>
+                <vue-pdf-app style="height: 100vh;" :config="config" :pdf="pdfFile"></vue-pdf-app>
+              </li>
+            </ul>
+          </div>
+          <!-- end PDF预览 -->
         </div>
       </div>
+
       <div class="main px-xl-5 px-lg-4 px-3">
         <div class="chat-body">
           <!-- 会话框头部 -->
@@ -380,7 +491,7 @@
                     <div class="message-row d-flex align-items-center justify-content-end">
                       <div class="message-content border p-3">
                         {{ item.send.messages[0].content }}
-                        <div class="attachment" v-show="item.send.messages[0].fileName">
+                        <div class="attachment" v-show="item.send.messages[0].fileName" @click="handleBackDoc">
                           <div class="media mt-2">
                             <div class="avatar me-2">
                               <div class="avatar rounded no-image orange">
@@ -437,7 +548,7 @@
                 <div class="col-12">
                   <div class="input-group align-items-center">
                     <input type="text" v-model="prompt" class="form-control border-0 pl-0" placeholder="Type your message...">
-                    <div class="attachment" v-show="fielUploadCard">
+                    <div class="attachment" v-show="fielUploadCard" @click="handleBackDoc">
                       <div class="media mt-2">
                         <div class="avatar me-2">
                           <div class="avatar rounded no-image orange">

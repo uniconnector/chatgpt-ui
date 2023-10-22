@@ -1,8 +1,17 @@
-# chatgpt-ui
+# ChatGPT UI
 
-This template should help get you started developing with Vue 3 in Vite.
+ChatGPT UI是一个开源项目，旨在为用户提供轻松、直观的方式与ChatGPT进行对话。我们相信，对话是连接人与人、人与技术的最强大方式，因此我们创建了这个前端UI工具，使ChatGPT的交互变得更加容易和有趣。
 
-![](https://github.com/uniconnector/chatgpt-ui/blob/main/screenshot/chatview.png)
+![运行效果预览](screenshot/chatview.png)
+
+## ChatPDF 与文档进行交流
+![PDF文件分析效果预览](screenshot/doc%20screenshot.png)
+
+## ChatPDF 与文档预览交流
+![PDF文件分析效果预览](screenshot/pdf%20view.png)
+
+## ChatGPT API 支持
+![API支持预览](screenshot/api%20screenshot.png)
 
 ## Recommended IDE Setup
 
