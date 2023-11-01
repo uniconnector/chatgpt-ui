@@ -10,10 +10,13 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
+    "@kangc/v-md-editor": "^2.3.17",
     "dotenv": "^16.3.1",
     "gpt-tokenizer": "^2.1.2",
+    "highlight.js": "^11.9.0",
     "openai": "^4.12.1",
     "vue": "^3.3.4",
+    "vue-markdown": "^2.2.4",
     "vue-router": "^4.2.4",
     "vue3-pdf-app": "^1.0.3"
   },
