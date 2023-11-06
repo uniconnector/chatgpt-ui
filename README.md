@@ -61,3 +61,8 @@ npm run dev
 ```sh
 npm run build
 ```
+
+### 项目交流群
+
+QQ群：321408266
+<img src="screenshot/qq.jpg" width="30%" height="30%">
