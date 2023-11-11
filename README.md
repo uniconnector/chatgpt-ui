@@ -4,59 +4,51 @@ ChatGPT UI是一个开源项目，旨在为用户提供轻松、直观的方式�
 
 ![运行效果预览](screenshot/chatview.png)
 
-## ChatPDF 与文档进行交流
+## 功能特点：
+1. UI包括文件上传功能，满足Alpha GPT-4(All Tools)API接入的UI支持。
+2. UI包括Token统计功能，方便统计计费和限制输入。
+
+## 预览1：ChatPDF 与文档进行交流
 ![PDF文件分析效果预览](screenshot/doc%20screenshot.png)
 
-## ChatPDF 与文档预览交流
+## 预览2：ChatPDF 与文档预览交流
 ![PDF文件分析效果预览](screenshot/pdf%20view.png)
 
-## ChatGPT API 支持
+## 预览3：ChatGPT API 支持
 ![API支持预览](screenshot/api%20screenshot.png)
 
-## Recommended IDE Setup
+## 环境要求
+开发版本： Node 18.15.0 + Vue 3
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-The default config for ChatGPT UI is stored in the `.env` file. You will need to override some values to get ChatGPT UI to run locally. This is done in `.env.local`.
-
-Start by creating a `.env.local` file in the root of the repository. The bare minimum config you need to get ChatGPT UI to run locally is the following:
+## 项目配置
+ChatGPT UI的默认配置存储在“.env”文件中。您将需要覆盖一些值以使ChatGPT UI在本地运行。
 
 ```env
-VITE_APP_URL = <https://api.openai.com/v1/chat/completions> 
+VITE_APP_URL = 填写OpenAI的API地址或第三方封装的API,格式示例：https://api.openai.com/v1/chat/completions
 
-VITE_API_KEY= <your api key of openai>
+VITE_API_KEY= 填写OpenAI的ApiKey, 格式示例: sk-FihjnhGKO14eYLmPpV1234BlbkFJUq1lS0RNenkDsjgGLopx
 
-VITE_API_UPLOAD = <url of upload service>
+VITE_API_UPLOAD = 填写解析pdf文件的API地址，格式示例: http://domain.com/upload/pdf
 ```
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+## 项目初始化
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### 运行开发环境
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### 访问项目
+```sh
+http://localhost:1003
+```
+
+### 构建生产环境
 
 ```sh
 npm run build
