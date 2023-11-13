@@ -8,6 +8,14 @@ ChatGPT UI是一个开源项目，旨在为用户提供轻松、直观的方式�
 1. UI包括文件上传功能，满足Alpha GPT-4(All Tools)API接入的UI支持。
 2. UI包括Token统计功能，方便统计计费和限制输入。
 
+编码指定如何将文本转换为标记，不同的模型使用不同的编码。
+
+| 编码 | OpenAI 模型  |
+|---|---|
+| cl100k_base  | gpt-4, gpt-3.5-turbo, text-embedding-ada-002  |
+| p50k_base  | Codex models, text-davinci-002, text-davinci-003  |
+| r50k_base (or gpt2)  | GPT-3 models like davinci  |
+
 ## 预览1：ChatPDF 与文档进行交流
 ![PDF文件分析效果预览](screenshot/doc%20screenshot.png)
 
