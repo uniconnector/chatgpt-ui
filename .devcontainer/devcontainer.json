@@ -10,6 +10,9 @@
 				"Vue.volar"
 			]
 		}
+	},
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/heroku-cli:1": {}
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
