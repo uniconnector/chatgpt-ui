@@ -260,7 +260,7 @@
     // Send message (for local display, not directly sent to GPT) (发送信息（用于本地显示，不是直接发送给GPT的消息）)
     messageList.value.push({
       "send": {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-3.5-turbo-1106",
         "messages": [{"role": "user", "content": message, "fileName": fileName.value, "fileSize": fileSize.value}],
         "temperature": 0.7
       },
@@ -276,7 +276,7 @@
       }
 
       let data = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-3.5-turbo-1106",
         "messages": [{"role": "user", "content": message }],
         "temperature": 0.7,
         "stream": true
