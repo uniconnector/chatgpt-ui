@@ -547,35 +547,37 @@
                         <div class="container-xxl">
                           <div class="row">
                             <div class="col-12">
-                              <div class="input-group align-items-center">
-                                <input type="text" v-model="prompt" class="form-control border-0 pl-0" placeholder="Type your message...">
-                                <div class="attachment" v-show="fielUploadCard" @click="handleBackDoc">
-                                  <div class="media mt-2">
-                                    <div class="avatar me-2">
-                                      <div class="avatar rounded no-image orange">
-                                        <i class="zmdi zmdi-collection-pdf"></i>
+                              <form @submit.prevent="handleSubmit">
+                                <div class="input-group align-items-center">
+                                  <input type="text" v-model="prompt" class="form-control border-0 pl-0" placeholder="Type your message...">
+                                  <div class="attachment" v-show="fielUploadCard" @click="handleBackDoc">
+                                    <div class="media mt-2">
+                                      <div class="avatar me-2">
+                                        <div class="avatar rounded no-image orange">
+                                          <i class="zmdi zmdi-collection-pdf"></i>
+                                        </div>
+                                      </div>
+                                      <div class="media-body overflow-hidden">
+                                        <h6 class="text-truncate mb-0">{{ fileName }}</h6>
+                                        <span class="file-size">{{ fileSize }}</span>
                                       </div>
                                     </div>
-                                    <div class="media-body overflow-hidden">
-                                      <h6 class="text-truncate mb-0">{{ fileName }}</h6>
-                                      <span class="file-size">{{ fileSize }}</span>
-                                    </div>
+                                  </div>
+                                  <div class="input-group-append">
+                                    <span class="input-group-text border-0">
+                                      <input type="file" accept="application/pdf" id="fileInput" ref="file" @change="handleUpload" style="display:none">
+                                      <button class="btn btn-sm btn-link text-muted" data-toggle="tooltip" @click="$refs.file.click()" title="" type="button" data-original-title="Attachment"><i class="zmdi zmdi-attachment font-22"></i></button>
+                                    </span>
+                                  </div>
+                                  <div class="input-group-append">
+                                    <span class="input-group-text border-0 pr-0">
+                                      <button type="submit" class="btn btn-primary" :disabled="buttonDisabled" @click="handleSubmit">
+                                        <i class="zmdi zmdi-mail-send"></i>
+                                      </button>
+                                    </span>
                                   </div>
                                 </div>
-                                <div class="input-group-append">
-                                  <span class="input-group-text border-0">
-                                    <input type="file" accept="application/pdf" id="fileInput" ref="file" @change="handleUpload" style="display:none">
-                                    <button class="btn btn-sm btn-link text-muted" data-toggle="tooltip" @click="$refs.file.click()" title="" type="button" data-original-title="Attachment"><i class="zmdi zmdi-attachment font-22"></i></button>
-                                  </span>
-                                </div>
-                                <div class="input-group-append">
-                                  <span class="input-group-text border-0 pr-0">
-                                    <button type="submit" class="btn btn-primary" :disabled="buttonDisabled" @click="handleSubmit">
-                                      <i class="zmdi zmdi-mail-send"></i>
-                                    </button>
-                                  </span>
-                                </div>
-                              </div>
+                              </form>
                             </div>
                           </div>
                         </div>
