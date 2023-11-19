@@ -576,7 +576,9 @@
                               <div class="message-body">
                                 <span class="date-time text-muted">{{ item.receive.model }}</span>
                                 <div class="message-row d-flex align-items-center">
-                                  <div class="message-content p-3">{{ item.receive.choices[0].message?item.receive.choices[0].message.content:item.receive.choices[0].delta.content }}</div>
+                                  <div class="message-content p-3">
+                                    <v-md-preview :text="item.receive.choices[0].message?item.receive.choices[0].message.content:item.receive.choices[0].delta.content"></v-md-preview>
+                                  </div>
                                 </div>
                               </div>
                             </li>
