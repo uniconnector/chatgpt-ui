@@ -15,12 +15,12 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 1003,
+    port: process.env.PORT ? Number(process.env.PORT) : 1003,
     open: false,
     proxy: {
       '/file': {
         target: 'http://localhost:8080',
-        changeOrigin: true, // 允许跨域
+        changeOrigin: true, // Allow cross-origin requests
         rewrite: path => path.replace('/file/', '/'),
       },
     },
