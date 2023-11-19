@@ -1,13 +1,15 @@
 <script setup lang='ts'>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'
 
 const firstname = ref<string>('')
 const lastname = ref<string>('')
 const email = ref<string>('')
 
+const router = useRouter();
+
 function handleSignin() {
-  this.$router.push({ name:"signin" })
+  router.push({ name:"signin" })
 }
 
 function handleRegistration() {
@@ -31,12 +33,15 @@ function handleRegistration() {
 
   fetch('http://api.uniconnector.com/portal/environments/DEFAULT/users/registration', {
     method: 'POST',
-    body: data,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
   })
 	.then(response => response.text())
 	.catch(error => console.error('Error:', error))
 	.then(function (response) {
-    this.$router.push({ name:"chat" })
+    router.push({ name:"chat" })
   })
 }
 </script>
