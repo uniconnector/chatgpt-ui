@@ -10,11 +10,11 @@
 
   const { scrollRef, scrollToBottom } = useScroll()
 
-  // Conversation and PDF preview panel toggle control (会话和PDF预览面板切换控制)
+  // Conversation and PDF preview panel toggle control
   let showTab = ref<string>("nav-tab-chat")
   let tabWidth = ref<string>("")
 
-  // vue3-pdf-app UI configuration (vue3-pdf-app 界面配置) 
+  // vue3-pdf-app UI configuration
   let pdfFile = ref<string>("")
   const config = ref<{}>({
     sidebar: true,
@@ -40,30 +40,64 @@
     },
   })
 
-  // Message input box   (消息输入框)
+  // Message input box
   const prompt = ref<string>('')
 
-  // Loading state and button state (loading状态和按钮状态)
+  // Loading state and button state
   const buttonDisabled = ref<boolean>(false)
 
-  // Get uuid from URL params (获取URL参数中的uuid)
+  // Get uuid from URL params
   const route = useRoute()
   let { uuid } = route.params as { uuid: string }
 
-  // Conversation list and message list   (会话列表和消息列表)
-  var conversationList = ref([])
-  var messageList = ref([])
+  interface Conversation {
+    title: string;
+    uuid: string;
+    isEdit: boolean;
+    createDate: string;
+    lastChatContent: string;
+    active: boolean;
+  }
 
+  interface Message {
+    send: {
+      model: string;
+      messages: {
+        role: string;
+        content: string;
+        fileName: any;
+        fileSize: number;
+      }[];
+      temperature: number;
+    };
+    loading: boolean;
+    receive?: {
+      model: string;
+      choices: {
+        message?: {
+          content: string;
+        };
+        delta: {
+          content: string;
+        };
+      }[];
+    };
+  }
+
+  // Conversation list and message list
+  var conversationList = ref<Conversation[]>([])
+  var messageList = ref<Message[]>([]);
+  
   let conversations = window.localStorage.getItem("chatStore")
   if(conversations){
     conversationList.value = JSON.parse(conversations)
   }
 
-  // Check if new conversation (判断是否是新会话)
+  // Check if new conversation
   if (!uuid || uuid === '0') {
-    uuid = Date.now()
+    uuid = Date.now().toString()
 
-    // Initialize empty conversation (初始化一个空的会话)
+    // Initialize empty conversation
     if(!conversations){
       conversationList.value.push({
         title: 'New Chat', 
@@ -74,7 +108,7 @@
         active: true
       })
     }else{
-      // If has history, get last conversation (有历史会话,则取出最后一条会话)
+      // If has history, get last conversation
       let lastConversation = conversationList.value[conversationList.value.length-1]
       uuid = lastConversation.uuid
 
@@ -86,7 +120,7 @@
       router.push({ name: 'Chat', params: { uuid } })
     }
   }else{
-    // Load current conversation messages (读取当前会话的的消息记录)
+    // Load current conversation messages
     let messages = window.localStorage.getItem(uuid)
     if(messages) {
       messageList.value = JSON.parse(messages)
@@ -103,18 +137,18 @@
     scrollToBottom()
   }
 
-  // Set active conversation (设置激活会话)
+  // Set active conversation
   function handleAdd() {
-    // Reset the message record of the new conversation (重置新会话的消息记录)
+    // Reset the message record of the new conversation
     messageList.value = []
 
-    // Reset the active status of the conversation list (重置会话列表的激活状态)
+    // Reset the active status of the conversation list
     conversationList.value.forEach((item, index) => {
       item.active = false
     })
 
-    // Initialize an empty conversation (初始化一个空的会话)
-    uuid = Date.now()
+    // Initialize an empty conversation
+    uuid = Date.now().toString()
 
     conversationList.value.unshift({
       title: "New Chat",
@@ -125,25 +159,27 @@
       active: true
     })
 
-    // Save the conversation to local storage (保存会话到本地存储)
+    // Save the conversation to local storage
     window.localStorage.setItem("chatStore", JSON.stringify(conversationList.value))
   }
 
-  // Menu toggle (菜单切换)
+  // Menu toggle
   function handleMenu(){
     let rootbody = document.getElementById("rootbody")
-    if(rootbody.classList.value==""){
-      rootbody.classList.value="open-sidebar-menu"
-    }else{
-      rootbody.classList.value=""
+    if (rootbody) {
+      if(rootbody.classList.value==""){
+        rootbody.classList.value="open-sidebar-menu"
+      }else{
+        rootbody.classList.value=""
+      }
     }
   }
 
-  // Switch conversation (切换会话)
+  // Switch conversation
   function handleSwitch(selectedUuid: string) {
     uuid = selectedUuid
 
-    // Reset message record of the new conversation (重置新会话的消息记录)
+    // Reset message record of the new conversation
     let messages = window.localStorage.getItem(selectedUuid)
     if(messages){
       messageList.value = JSON.parse(messages)
@@ -151,7 +187,7 @@
       messageList.value = []
     }
 
-    // Reset active status of the conversation list (重置会话列表的激活状态)
+    // Reset active status of the conversation list
     conversationList.value.forEach((item, index) => {
       if(item.uuid == selectedUuid){
         item.active = true
@@ -163,34 +199,40 @@
     router.push({ name: 'Chat', params: { uuid } })
   }
 
-  // File upload related (上传文件相关)
+  // File upload related
   var fileName = ref()
   var fileSize = ref<number>(0)
+  var formattedFileSize = ref<string>('0B')
   var fileUploadCard = ref<boolean>(false)
 
   var fileContent = ref()
 
-  // Handle file upload (处理上传文档)
-  function handleUpload(e){
-    if(e.target.files[0].size >= 5 * 1024 * 1024){
-      alert('Maximum file size limit is 5MB (上传文件最大文件5M限制)')
+  
+  // Handle file upload
+  function handleUpload(e: Event) {
+    const target = e.target as HTMLInputElement;
+    if(target.files && target.files[0].size >= 5 * 1024 * 1024){
+      alert('Maximum file size limit is 5MB')
+      return
+    }else if (!target.files || target.files.length === 0) {
+      alert('Please select a file')
       return
     }
 
-    // Set file upload style (设置上传文件样式)
-    fileName.value = e.target.files[0].name
-    fileSize.value = e.target.files[0].size
+    // Set file upload style
+    fileName.value = target.files[0].name
+    fileSize.value = target.files[0].size
     formatFileSize()
 
-    // Preview PDF (预览pdf)
+    // Preview PDF
     showTab.value = 'nav-tab-doc'
     tabWidth.value = 'width: 60%'
 
-    pdfFile.value = URL.createObjectURL(e.target.files[0])
+    pdfFile.value = URL.createObjectURL(target.files[0])
 
-    // Upload file and extract content (上传文件解析出内容)
+    // Upload file and extract content
     const formData = new FormData()
-    formData.append('doc', e.target.files[0])
+    formData.append('doc', target.files[0])
 
     fetch(import.meta.env.VITE_API_UPLOAD, {
       method: 'POST',
@@ -199,17 +241,23 @@
     .then(response => response.text())
     .catch(error => console.error('Error:', error))
     .then(function (docContent) {
+      if (typeof docContent !== 'string') {
+        alert("Failed to extract file content")
+        return
+      }
+      
       const tokens = encode(docContent)
 
       if(tokens.length > 4096){
-        alert("Exceeded maximum token limit of 4096 (超出最大Tokens数量限制4096)")
+        alert("Exceeded maximum token limit of 4096")
         fileName.value = ''
-        fileSize.value = ''
+        fileSize.value = 0
+        formattedFileSize.value = '0B'
       }else{
-        // Set the extracted content (设置读取出的内容)
+        // Set the extracted content
         fileContent.value = docContent
 
-        // Show file upload card (显示上传卡片)
+        // Show file upload card
         fileUploadCard.value = true
       }
     })
@@ -225,47 +273,54 @@
     tabWidth.value = 'width: 40%'
   }
 
-  // Format file size in Bytes, KB, MB, GB (格式化文件大小 单位：Bytes、KB、MB、GB)
+  // Format file size in Bytes, KB, MB, GB
   function formatFileSize() {
     if (fileSize.value < 1024) {
-        fileSize.value = fileSize.value + 'B';
+        formattedFileSize.value = fileSize.value + 'B';
     } else if (fileSize.value < (1024*1024)) {
         var temp = fileSize.value / 1024
-        fileSize.value = temp.toFixed(2) + 'KB'
+        formattedFileSize.value = temp.toFixed(2) + 'KB'
     } else if (fileSize.value < (1024*1024*1024)) {
         var temp = fileSize.value / (1024*1024)
-        fileSize.value = temp.toFixed(2) + 'MB'
+        formattedFileSize.value = temp.toFixed(2) + 'MB'
     } else {
         var temp = fileSize.value / (1024*1024*1024);
-        fileSize.value = temp.toFixed(2) + 'GB'
+        formattedFileSize.value = temp.toFixed(2) + 'GB'
     }
   }
 
-  // Submit message (发送消息)
+  // Submit message
   function handleSubmit() {
     onConversation()
   }
 
-  // Stream request to ChatGPT3.5 (流式请求ChatGPT3.5)
+  // Stream request to ChatGPT3.5
   async function onConversation() {
     let message = prompt.value
     if (!message || message.trim() === '')
       return
 
-    // Clear input box and disable button (清空输入框和禁用按钮)
+    // Clear input box and disable button
     prompt.value = ''
     buttonDisabled.value = true
     fileUploadCard.value = false
 
-    // Send message (for local display, not directly sent to GPT) (发送信息（用于本地显示，不是直接发送给GPT的消息）)
+    // Send message (for local display, not directly sent to GPT)
     messageList.value.push({
-      "send": {
-        "model": "gpt-3.5-turbo-1106",
-        "messages": [{"role": "user", "content": message, "fileName": fileName.value, "fileSize": fileSize.value}],
-        "temperature": 0.7
+      send: {
+        model: "gpt-3.5-turbo-1106",
+        messages: [
+          {
+            role: "user",
+            content: message,
+            fileName: fileName.value,
+            fileSize: fileSize.value,
+          },
+        ],
+        temperature: 0.7,
       },
-      "loading": true
-    })
+      loading: true,
+    });
 
     scrollToBottom()
 
@@ -297,16 +352,18 @@
       // Reset file upload related states immediately after sending to ChatGPT
       fileName.value = ''
       fileSize.value = 0
+      formattedFileSize.value = '0B'
 
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
 
       // Read the data returned from the stream
-      const reader = response.body.getReader()
+      const reader = response.body?.getReader();
+
       const textDecoder = new TextDecoder()
       let result = true
-      while (result) {
+      while (reader && result) {
         // Get a chunk
         const { done, value } = await reader.read()
 
@@ -340,9 +397,11 @@
                 messageList.value[messageList.value.length - 1].receive = chunkData
                 messageList.value[messageList.value.length - 1].loading = false
               } else {
-                messageList.value[messageList.value.length - 1].receive.choices[0].delta.content += chunkData.choices[0].delta.content
+                const lastMessage = messageList.value[messageList.value.length - 1]?.receive;
+                if (lastMessage && lastMessage.choices[0].delta.content) {
+                  lastMessage.choices[0].delta.content += chunkData.choices[0].delta.content;
+                }
               }
-
               scrollToBottom()
             }
           }
@@ -474,7 +533,7 @@
                                 <div class="media-body overflow-hidden">
                                   <div class="d-flex align-items-center mb-1">
                                     <h6 class="text-truncate mb-0 me-auto">ChatGPT 3.5</h6></div>
-                                  <div class="text-truncate">Power By OpenAI</div></div>
+                                  <div class="text-truncate">Powered By OpenAI</div></div>
                               </div>
                             </div>
                           </div>
@@ -550,7 +609,7 @@
                               <form @submit.prevent="handleSubmit">
                                 <div class="input-group align-items-center">
                                   <input type="text" v-model="prompt" class="form-control border-0 pl-0" placeholder="Type your message...">
-                                  <div class="attachment" v-show="fielUploadCard" @click="handleBackDoc">
+                                  <div class="attachment" v-show="fileUploadCard" @click="handleBackDoc">
                                     <div class="media mt-2">
                                       <div class="avatar me-2">
                                         <div class="avatar rounded no-image orange">
@@ -566,7 +625,9 @@
                                   <div class="input-group-append">
                                     <span class="input-group-text border-0">
                                       <input type="file" accept="application/pdf" id="fileInput" ref="file" @change="handleUpload" style="display:none">
-                                      <button class="btn btn-sm btn-link text-muted" data-toggle="tooltip" @click="$refs.file.click()" title="" type="button" data-original-title="Attachment"><i class="zmdi zmdi-attachment font-22"></i></button>
+                                      <button class="btn btn-sm btn-link text-muted" data-toggle="tooltip" @click="($refs.file as HTMLInputElement).click()" title="" type="button" data-original-title="Attachment">
+                                        <i class="zmdi zmdi-attachment font-22"></i>
+                                      </button>
                                     </span>
                                   </div>
                                   <div class="input-group-append">
