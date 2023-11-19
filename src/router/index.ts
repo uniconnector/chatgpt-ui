@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import ChatView from '../views/ChatView.vue'
+import type { App } from 'vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -11,24 +12,24 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/chat/:uuid?',
         name: 'Chat',
-        component: () => import('@/views/ChatView.vue'),
+        component: () => ChatView,
       },
     ],
   },
   {
     path: '/doc',
     name: 'doc',
-    component: () => import('@/views/DocView.vue'),
+    component: () => ChatView,
   },
   {
     path: '/signin',
     name: 'signin',
-    component: () => import('@/views/signin/index.vue'),
+    component: () => ChatView,
   },
   {
     path: '/signup',
     name: 'signup',
-    component: () => import('@/views/signup/index.vue'),
+    component: () => ChatView,
   }
 ]
 
