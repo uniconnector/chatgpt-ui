@@ -289,8 +289,24 @@
     }
   }
 
+  
+  // stop Responding sign
+  const stopRespondingSign = ref<boolean>(true)
+
+  // Click Button of Stop Responding
+  function handleStopResponding(item: Message){
+    item.loading = false
+    stopRespondingSign.value = true
+
+    // Restore button state
+    buttonDisabled.value = false
+    fileContent.value = ''
+  }
+
   // Submit message
   function handleSubmit() {
+    stopRespondingSign.value = false
+
     onConversation()
   }
 
@@ -359,7 +375,7 @@
       }
 
       // Read the data returned from the stream
-      const reader = response.body?.getReader();
+      const reader = response.body?.getReader()
 
       const textDecoder = new TextDecoder()
       let result = true
@@ -367,8 +383,9 @@
         // Get a chunk
         const { done, value } = await reader.read()
 
-        if (done) {
-          console.log('Stream ended')
+        // End and Click button of Stop Responding
+        if (done || stopRespondingSign.value) {
+          // console.log('Stream ended')
           result = false
 
           // Restore button state
@@ -580,6 +597,9 @@
                                     <v-md-preview :text="item.receive.choices[0].message?item.receive.choices[0].message.content:item.receive.choices[0].delta.content"></v-md-preview>
                                   </div>
                                 </div>
+                                <div class="message-row d-flex align-items-center" v-if="!stopRespondingSign">
+                                  <button type="button" class="btn btn-outline-primary btn-rounded mb-1 me-1" @click="handleStopResponding(item)">Stop Responding</button>
+                                </div>
                               </div>
                             </li>
                             <!-- end Left Message -->
@@ -596,6 +616,9 @@
                                       <span class="dot"></span>
                                     </div>
                                   </div>
+                                </div>
+                                <div class="message-row d-flex align-items-center" v-if="!stopRespondingSign">
+                                  <button type="button" class="btn btn-outline-primary btn-rounded mb-1 me-1" @click="handleStopResponding(item)">Stop Responding</button>
                                 </div>
                               </div>
                             </li>
