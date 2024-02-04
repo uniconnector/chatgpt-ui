@@ -18,17 +18,17 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/doc',
     name: 'doc',
-    component: () => import('../views/ChatView.vue'),
+    component: () => import('../views/DocView.vue'),
   },
   {
     path: '/signin',
     name: 'signin',
-    component: () => import('../views/ChatView.vue'),
+    component: () => import('../views/signin/index.vue'),
   },
   {
     path: '/signup',
     name: 'signup',
-    component: () => import('../views/ChatView.vue'),
+    component: () => import('../views/signup/index.vue'),
   }
 ]
 
