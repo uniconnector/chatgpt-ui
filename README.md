@@ -35,7 +35,7 @@ Preview and discuss documents
 
 ![PDF File Analysis Preview](screenshot/pdf%20view.png) 
 
-## Preview 3: ChatGPT API Support
+## Preview 3: ChatGPT API Support [UniConnector](http://www.uniconnector.com)
 
 ![API Support Preview](screenshot/api%20screenshot.png)
 
