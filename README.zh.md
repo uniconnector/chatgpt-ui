@@ -22,7 +22,7 @@ ChatGPT UI是一个开源项目，旨在为用户提供轻松、直观的方式�
 ## 预览2：ChatPDF 与文档预览交流
 ![PDF文件分析效果预览](screenshot/pdf%20view.png)
 
-## 预览3：ChatGPT API 支持[UniConnector](http://www.uniconnector.com)
+## 预览3：ChatGPT API 支持[UniConnector](http://portal.uniconnector.com)
 ![API支持预览](screenshot/api%20screenshot.png)
 
 ## 环境要求
